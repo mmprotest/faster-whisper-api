@@ -36,6 +36,21 @@ uvicorn app.main:app --host 0.0.0.0 --port 8000
 
 After startup the service preloads the default Whisper model on the GPU.
 
+## Optional Gradio client
+
+An interactive Gradio interface is available to record audio from your microphone and
+forward it to the local API for transcription.
+
+Install the additional client dependencies and start the UI:
+
+```bash
+pip install gradio requests
+python scripts/gradio_client.py
+```
+
+Set the `FASTER_WHISPER_API_URL` environment variable if your API is running on a
+non-default host or port (defaults to `http://localhost:8000`).
+
 ## Endpoints
 
 ### `GET /models`
