@@ -34,7 +34,30 @@ Environment variables can be used to tweak the runtime:
 uvicorn app.main:app --host 0.0.0.0 --port 8000
 ```
 
-After startup the service preloads the default Whisper model on the GPU.
+Alternatively run the module directly, which will launch the bundled uvicorn entrypoint:
+
+```bash
+python -m app.main
+```
+
+After startup the service preloads the default Whisper model on the GPU. Override the
+bind address or port by setting `FASTAPI_HOST` / `FASTAPI_PORT` before launching with
+`python -m app.main`.
+
+## Optional Gradio client
+
+An interactive Gradio interface is available to record audio from your microphone and
+forward it to the local API for transcription.
+
+Install the additional client dependencies and start the UI:
+
+```bash
+pip install gradio requests
+python scripts/gradio_client.py
+```
+
+Set the `FASTER_WHISPER_API_URL` environment variable if your API is running on a
+non-default host or port (defaults to `http://localhost:8000`).
 
 ## Optional Gradio client
 
