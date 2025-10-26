@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import os
 import tempfile
+from contextlib import asynccontextmanager
 from functools import lru_cache
 from typing import Dict, List, Literal, Optional
 
@@ -50,14 +51,14 @@ def load_model(model_name: str) -> WhisperModel:
 
     return WhisperModel(model_name, device=DEVICE, compute_type=COMPUTE_TYPE)
 
-
-app = FastAPI(title="Faster Whisper API")
-
-
-@app.on_event("startup")
-def preload_default_model() -> None:
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
     """Warm up the default model when the service starts."""
     load_model(DEFAULT_MODEL_NAME)
+    yield
+
+
+app = FastAPI(title="Faster Whisper API", lifespan=lifespan)
 
 
 def _transcribe(
@@ -150,3 +151,17 @@ async def transcribe(
 def list_models() -> Dict[str, List[str]]:
     """Return the list of available models."""
     return {"available_models": sorted(AVAILABLE_MODELS)}
+
+
+def _run_uvicorn() -> None:
+    """Start a uvicorn server hosting this FastAPI app."""
+    import uvicorn
+
+    host = os.getenv("FASTAPI_HOST", "0.0.0.0")
+    port = int(os.getenv("FASTAPI_PORT", "8000"))
+
+    uvicorn.run("app.main:app", host=host, port=port, factory=False)
+
+
+if __name__ == "__main__":
+    _run_uvicorn()
